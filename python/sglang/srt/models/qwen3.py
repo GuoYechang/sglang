@@ -297,11 +297,15 @@ class Qwen3DecoderLayer(nn.Module):
             hidden_states,
             residual,
             forward_batch,
-            # cache=(
-            #     [self.mlp.gate_up_proj.weight, self.mlp.down_proj.weight]
-            #     if _is_npu
-            #     else None
-            # ),
+            cache=(
+                [self.mlp.gate_up_proj.weight, self.mlp.down_proj.weight]
+                if _is_npu
+                and (
+                    hasattr(self.mlp.gate_up_proj, "weight")
+                    and hasattr(self.mlp.down_proj, "weight")
+                )
+                else None
+            ),
         )
         hidden_states = self.mlp(hidden_states)
         # if _is_npu and get_cmo_stream():
